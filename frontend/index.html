@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineSuggest - Movie Recommendations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e74c3c;
+            --accent: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --text: #333;
+            --card-bg: #fff;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--text);
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(to right, var(--primary), var(--dark));
+            color: white;
+            padding: 20px 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            color: var(--secondary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--secondary);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .btn-outline:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 30px;
+            padding: 8px 15px;
+            width: 300px;
+        }
+
+        .search-bar input {
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 5px;
+            font-size: 1rem;
+        }
+
+        .search-bar i {
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-4.0.3') center/cover no-repeat;
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #c0392b;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Auth Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .auth-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .auth-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .auth-form .btn {
+            width: 100%;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        .auth-switch a {
+            color: var(--accent);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Movies Section */
+        .movies-section {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--primary);
+            font-size: 2.2rem;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--secondary);
+            margin: 15px auto;
+            border-radius: 2px;
+        }
+
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: var(--light);
+            padding: 15px 20px;
+            border-radius: 8px;
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 15px;
+        }
+
+        .filter-options select {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .view-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-options button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .view-options button:hover {
+            background: var(--secondary);
+        }
+
+        /* Movie Grid */
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .movie-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .movie-poster {
+            height: 350px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .movie-card:hover .movie-poster img {
+            transform: scale(1.1);
+        }
+
+        .movie-poster .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            padding: 20px;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .movie-card:hover .overlay {
+            opacity: 1;
+        }
+
+        .play-trailer {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .movie-info {
+            padding: 20px;
+        }
+
+        .movie-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .movie-details {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .movie-rating {
+            color: gold;
+            font-weight: 600;
+        }
+
+        .movie-description {
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .add-to-watchlist {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+        }
+
+        .add-to-watchlist:hover {
+            background: #2980b9;
+        }
+
+        /* Recommendation Section */
+        .recommendation {
+            padding: 80px 0;
+            background: var(--light);
+        }
+
+        .recommendation-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Categories Section */
+        .categories {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .category-card {
+            background: var(--card-bg);
+            padding: 25px 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .category-card:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .category-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+
+        .category-card:hover i {
+            color: white;
+        }
+
+        /* New Releases Section */
+        .new-releases {
+            padding: 80px 0;
+            background: var(--light);
+        }
+
+        .releases-slider {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            padding: 20px 0;
+            scrollbar-width: thin;
+        }
+
+        .releases-slider::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .releases-slider::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 8px;
+        }
+
+        .release-card {
+            flex: 0 0 300px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .release-poster {
+            height: 180px;
+        }
+
+        .release-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .release-info {
+            padding: 15px;
+        }
+
+        /* Top Rated Section */
+        .top-rated {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .rated-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .rated-item {
+            display: flex;
+            gap: 15px;
+            background: var(--light);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .rated-img {
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .rated-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .rated-details {
+            padding: 15px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--secondary);
+        }
+
+        .footer-section p, .footer-section a {
+            opacity: 0.8;
+            margin-bottom: 10px;
+            display: block;
+            color: white;
+            text-decoration: none;
+        }
+
+        .footer-section a:hover {
+            opacity: 1;
+            color: var(--secondary);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .social-icons a:hover {
+            background: var(--secondary);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            opacity: 0;
+            visibility: hidden;
+            z-index: 99;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: #c0392b;
+            transform: translateY(-5px);
+        }
+
+        /* Loading Spinner */
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--accent);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            nav ul {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .search-bar {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .movie-poster {
+                height: 300px;
+            }
+            
+            .categories-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .user-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-film"></i>
+                <span>CineSuggest</span>
+            </div>
+            
+            <nav>
+                <ul>
+                    <li><a href="#home" class="active">Home</a></li>
+                    <li><a href="#movies">Movies</a></li>
+                    <li><a href="#genres">Genres</a></li>
+                    <li><a href="#new-releases">New Releases</a></li>
+                    <li><a href="#top-rated">Top Rated</a></li>
+                </ul>
+            </nav>
+            
+            <div class="user-actions">
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Search for movies...">
+                    <i class="fas fa-search" id="search-btn"></i>
+                </div>
+                <select id="user-select" class="btn-outline">
+                    <option value="1">Alice</option>
+                    <option value="2">Bob</option>
+                    <option value="3">Charlie</option>
+                    <option value="4">Diana</option>
+                    <option value="5">Eve</option>
+                    <option value="6">Frank</option>
+                    <option value="7">Grace</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container hero-content">
+            <h1>Discover Your Next Favorite Movie</h1>
+            <p>Get personalized movie recommendations based on your preferences and taste</p>
+            <a href="#recommendation" class="btn">Get Recommendations</a>
+        </div>
+    </section>
+
+    <!-- Movies Section -->
+    <section class="movies-section" id="movies">
+        <div class="container">
+            <h2 class="section-title">Popular Movies</h2>
+            
+            <div class="filter-bar">
+                <div class="filter-options">
+                    <select id="genre-filter">
+                        <option value="">All Genres</option>
+                        <option value="28">Action</option>
+                        <option value="12">Adventure</option>
+                        <option value="16">Animation</option>
+                        <option value="35">Comedy</option>
+                        <option value="80">Crime</option>
+                        <option value="18">Drama</option>
+                        <option value="14">Fantasy</option>
+                        <option value="27">Horror</option>
+                        <option value="9648">Mystery</option>
+                        <option value="10749">Romance</option>
+                        <option value="878">Science Fiction</option>
+                        <option value="53">Thriller</option>
+                    </select>
+                    <select id="year-filter">
+                        <option value="">Any Year</option>
+                        <option value="2020">2020s</option>
+                        <option value="2010">2010s</option>
+                        <option value="2000">2000s</option>
+                    </select>
+                    <select id="rating-filter">
+                        <option value="">Any Rating</option>
+                        <option value="9">9+</option>
+                        <option value="8">8+</option>
+                        <option value="7">7+</option>
+                    </select>
+                </div>
+                
+                <div class="view-options">
+                    <button id="grid-view"><i class="fas fa-th"></i></button>
+                    <button id="list-view"><i class="fas fa-list"></i></button>
+                </div>
+            </div>
+            
+            <div class="movies-grid" id="movies-container">
+                <div class="loader"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommendation Section -->
+    <section class="recommendation" id="recommendation">
+        <div class="container">
+            <h2 class="section-title">Get Personalized Recommendations</h2>
+            
+            <div class="recommendation-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="genre">Favorite Genre</label>
+                        <select id="recommendation-genre">
+                            <option value="">Select Genre</option>
+                            <option value="28">Action</option>
+                            <option value="35">Comedy</option>
+                            <option value="18">Drama</option>
+                            <option value="878">Sci-Fi</option>
+                            <option value="27">Horror</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="year">Release Year</label>
+                        <select id="recommendation-year">
+                            <option value="">Any Year</option>
+                            <option value="2020">2020s</option>
+                            <option value="2010">2010s</option>
+                            <option value="2000">2000s</option>
+                            <option value="1990">1990s</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mood">What are you in the mood for?</label>
+                    <select id="mood">
+                        <option value="">Select Mood</option>
+                        <option value="excited">Something Exciting</option>
+                        <option value="funny">Something Funny</option>
+                        <option value="thoughtful">Something Thought-Provoking</option>
+                        <option value="relaxing">Something Relaxing</option>
+                    </select>
+                </div>
+                
+                <button class="btn" id="get-recommendations">Find Recommendations</button>
+            </div>
+            
+            <h2 class="section-title">Recommended For You</h2>
+            
+            <div class="movies-grid" id="recommended-movies">
+                <div class="text-center py-10 text-gray-400">
+                    <p>Select your preferences and click "Find Recommendations"</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories" id="genres">
+        <div class="container">
+            <h2 class="section-title">Browse By Category</h2>
+            
+            <div class="categories-grid">
+                <div class="category-card" data-genre="28">
+                    <i class="fas fa-explosion"></i>
+                    <h3>Action</h3>
+                </div>
+                
+                <div class="category-card" data-genre="35">
+                    <i class="fas fa-laugh"></i>
+                    <h3>Comedy</h3>
+                </div>
+                
+                <div class="category-card" data-genre="10749">
+                    <i class="fas fa-heart"></i>
+                    <h3>Romance</h3>
+                </div>
+                
+                <div class="category-card" data-genre="27">
+                    <i class="fas fa-ghost"></i>
+                    <h3>Horror</h3>
+                </div>
+                
+                <div class="category-card" data-genre="878">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Sci-Fi</h3>
+                </div>
+                
+                <div class="category-card" data-genre="18">
+                    <i class="fas fa-theater-masks"></i>
+                    <h3>Drama</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- New Releases Section -->
+    <section class="new-releases" id="new-releases">
+        <div class="container">
+            <h2 class="section-title">New Releases</h2>
+            
+            <div class="releases-slider" id="new-releases-container">
+                <div class="loader"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Top Rated Section -->
+    <section class="top-rated" id="top-rated">
+        <div class="container">
+            <h2 class="section-title">Top Rated Movies</h2>
+            
+            <div class="rated-list" id="top-rated-container">
+                <div class="loader"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About CineSuggest</h3>
+                    <p>We help you discover movies you'll love. Our recommendation engine suggests films based on your preferences and viewing history.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <a href="#home">Home</a>
+                    <a href="#movies">Movies</a>
+                    <a href="#genres">Genres</a>
+                    <a href="#new-releases">New Releases</a>
+                    <a href="#top-rated">Top Rated</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Connect With Us</h3>
+                    <p>Follow us on social media for updates and movie news</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 CineSuggest. All rights reserved. Movie data provided by TMDB.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <a href="#home" class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+    <script>
+        // API base URL
+        const API_BASE = 'http://localhost:5000/api';
+        
+        // Current user ID
+        let currentUser = 1;
+        
+        // DOM elements
+        const userSelect = document.getElementById('user-select');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const genreFilter = document.getElementById('genre-filter');
+        const yearFilter = document.getElementById('year-filter');
+        const ratingFilter = document.getElementById('rating-filter');
+        const moviesContainer = document.getElementById('movies-container');
+        const recommendedMoviesContainer = document.getElementById('recommended-movies');
+        const newReleasesContainer = document.getElementById('new-releases-container');
+        const topRatedContainer = document.getElementById('top-rated-container');
+        const getRecommendationsBtn = document.getElementById('get-recommendations');
+        const categoryCards = document.querySelectorAll('.category-card');
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set up event listeners
+            userSelect.addEventListener('change', (e) => {
+                currentUser = parseInt(e.target.value);
+                loadRecommendations();
+            });
+            
+            searchInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    searchMovies();
+                }
+            });
+            
+            searchBtn.addEventListener('click', searchMovies);
+            
+            genreFilter.addEventListener('change', loadMovies);
+            yearFilter.addEventListener('change', loadMovies);
+            ratingFilter.addEventListener('change', loadMovies);
+            
+            getRecommendationsBtn.addEventListener('click', loadRecommendations);
+            
+            categoryCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const genre = card.getAttribute('data-genre');
+                    genreFilter.value = genre;
+                    loadMovies();
+                    // Scroll to movies section
+                    document.getElementById('movies').scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+            
+            // Load initial data
+            loadMovies();
+            loadNewReleases();
+            loadTopRated();
+            
+            // Set up scroll event for back to top button
+            window.addEventListener('scroll', function() {
+                const backToTop = document.getElementById('backToTop');
+                if (window.pageYOffset > 300) {
+                    backToTop.classList.add('visible');
+                } else {
+                    backToTop.classList.remove('visible');
+                }
+            });
+        });
+        
+        // Load movies from API
+        async function loadMovies() {
+            try {
+                moviesContainer.innerHTML = '<div class="loader"></div>';
+                
+                const genre = genreFilter.value;
+                const year = yearFilter.value;
+                const rating = ratingFilter.value;
+                
+                let url = `${API_BASE}/movies/discover`;
+                const params = [];
+                
+                if (genre) params.push(`genre=${genre}`);
+                if (year) params.push(`year=${year}`);
+                if (rating) params.push(`rating=${rating}`);
+                
+                if (params.length > 0) {
+                    url += `?${params.join('&')}`;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                displayMovies(data.movies, moviesContainer);
+            } catch (error) {
+                console.error('Error loading movies:', error);
+                moviesContainer.innerHTML = `
+                    <div class="text-center py-10 text-gray-400">
+                        <p>Error loading movies. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load new releases
+        async function loadNewReleases() {
+            try {
+                newReleasesContainer.innerHTML = '<div class="loader"></div>';
+                
+                const response = await fetch(`${API_BASE}/movies/discover?sort_by=release_date.desc`);
+                const data = await response.json();
+                
+                // Get first 5 movies for the slider
+                const newReleases = data.movies.slice(0, 5);
+                
+                newReleasesContainer.innerHTML = '';
+                newReleases.forEach(movie => {
+                    const releaseCard = document.createElement('div');
+                    releaseCard.className = 'release-card';
+                    releaseCard.innerHTML = `
+                        <div class="release-poster">
+                            <img src="${movie.imageUrl}" alt="${movie.title}">
+                        </div>
+                        <div class="release-info">
+                            <h3>${movie.title}</h3>
+                            <div class="movie-details">
+                                <span>${movie.releaseDate ? movie.releaseDate.split('-')[0] : 'N/A'}</span>
+                                <span class="movie-rating"><i class="fas fa-star"></i> ${movie.avgRating}</span>
+                            </div>
+                        </div>
+                    `;
+                    newReleasesContainer.appendChild(releaseCard);
+                });
+            } catch (error) {
+                console.error('Error loading new releases:', error);
+                newReleasesContainer.innerHTML = `
+                    <div class="text-center py-10 text-gray-400">
+                        <p>Error loading new releases.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load top rated movies
+        async function loadTopRated() {
+            try {
+                topRatedContainer.innerHTML = '<div class="loader"></div>';
+                
+                const response = await fetch(`${API_BASE}/movies/discover?sort_by=vote_average.desc`);
+                const data = await response.json();
+                
+                // Get top 4 rated movies
+                const topRated = data.movies.slice(0, 4);
+                
+                topRatedContainer.innerHTML = '';
+                topRated.forEach(movie => {
+                    const ratedItem = document.createElement('div');
+                    ratedItem.className = 'rated-item';
+                    ratedItem.innerHTML = `
+                        <div class="rated-img">
+                            <img src="${movie.imageUrl}" alt="${movie.title}">
+                        </div>
+                        <div class="rated-details">
+                            <h3>${movie.title}</h3>
+                            <div class="movie-details">
+                                <span>${movie.releaseDate ? movie.releaseDate.split('-')[0] : 'N/A'}</span>
+                                <span class="movie-rating"><i class="fas fa-star"></i> ${movie.avgRating}</span>
+                            </div>
+                        </div>
+                    `;
+                    topRatedContainer.appendChild(ratedItem);
+                });
+            } catch (error) {
+                console.error('Error loading top rated movies:', error);
+                topRatedContainer.innerHTML = `
+                    <div class="text-center py-10 text-gray-400">
+                        <p>Error loading top rated movies.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load recommendations
+        async function loadRecommendations() {
+            try {
+                recommendedMoviesContainer.innerHTML = '<div class="loader"></div>';
+                
+                const genre = document.getElementById('recommendation-genre').value;
+                const year = document.getElementById('recommendation-year').value;
+                const mood = document.getElementById('mood').value;
+                
+                let url = `${API_BASE}/movies/recommendations?user_id=${currentUser}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                // Use hybrid recommendations
+                displayMovies(data.hybrid, recommendedMoviesContainer);
+            } catch (error) {
+                console.error('Error loading recommendations:', error);
+                recommendedMoviesContainer.innerHTML = `
+                    <div class="text-center py-10 text-gray-400">
+                        <p>Error loading recommendations. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Search movies
+        async function searchMovies() {
+            const query = searchInput.value.trim();
+            
+            if (!query) {
+                alert('Please enter a search term');
+                return;
+            }
+            
+            try {
+                moviesContainer.innerHTML = '<div class="loader"></div>';
+                
+                const response = await fetch(`${API_BASE}/movies/search?query=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                displayMovies(data.movies, moviesContainer);
+            } catch (error) {
+                console.error('Error searching movies:', error);
+                moviesContainer.innerHTML = `
+                    <div class="text-center py-10 text-gray-400">
+                        <p>Error searching movies. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Display movies in a container
+        function displayMovies(movies, container) {
+            if (!movies || movies.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 text-gray-400">
+                        <p>No movies found.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            movies.forEach(movie => {
+                const movieCard = document.createElement('div');
+                movieCard.className = 'movie-card';
+                movieCard.innerHTML = `
+                    <div class="movie-poster">
+                        <img src="${movie.imageUrl}" alt="${movie.title}">
+                        <div class="overlay">
+                            <a href="#" class="play-trailer"><i class="fas fa-play"></i> Trailer</a>
+                        </div>
+                    </div>
+                    <div class="movie-info">
+                        <h3 class="movie-title">${movie.title}</h3>
+                        <div class="movie-details">
+                            <span>${movie.genre}</span>
+                            <span class="movie-rating"><i class="fas fa-star"></i> ${movie.avgRating}</span>
+                        </div>
+                        <p class="movie-description">${movie.overview || 'No description available.'}</p>
+                        <button class="add-to-watchlist"><i class="fas fa-plus"></i> Watchlist</button>
+                    </div>
+                `;
+                container.appendChild(movieCard);
+            });
+        }
+        
+        // Category cards hover effect
+        categoryCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
